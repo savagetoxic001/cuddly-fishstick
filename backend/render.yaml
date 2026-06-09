@@ -1,0 +1,68 @@
+# Render.com Deployment Configuration for Backend
+# Reference: https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: little-angels-backend
+    runtime: node
+    plan: free # Change to starter for production
+    
+    # Build configuration
+    buildCommand: npm install
+    startCommand: npm start
+    
+    # Environment variables
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        scope: secret
+      - key: JWT_SECRET
+        scope: secret
+      - key: CLOUDINARY_CLOUD_NAME
+        scope: secret
+      - key: CLOUDINARY_API_KEY
+        scope: secret
+      - key: CLOUDINARY_API_SECRET
+        scope: secret
+      - key: FRONTEND_URL
+        value: https://littleangelsschool.com
+      - key: ALLOWED_ORIGINS
+        value: https://littleangelsschool.com,https://www.littleangelsschool.com
+    
+    # Health check
+    healthCheckPath: /api/health
+    
+    # Auto-deploy from GitHub
+    repo: https://github.com/savagetoxic001/cuddly-fishstick
+    branch: main
+    autoDeployOnPush: true
+    
+    # Root directory
+    rootDir: backend
+    
+    # Resource configuration
+    disk:
+      name: data
+      mountPath: /app/uploads
+      sizeGB: 1
+
+# Environment variable groups for different deployment stages
+envVarGroups:
+  - name: production
+    displayName: Production Environment
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: warn
+
+  - name: development
+    displayName: Development Environment
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: LOG_LEVEL
+        value: debug

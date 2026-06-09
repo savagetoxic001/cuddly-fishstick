@@ -1,0 +1,59 @@
+# Netlify Configuration for Frontend Deployment
+
+[build]
+  # Build command for Vite
+  command = "npm run build"
+  # Output directory
+  publish = "dist"
+  # Directory where build happens
+  base = "frontend"
+
+# Redirect all routes to index.html for client-side routing (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache headers for static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache headers for HTML
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Environment variables configuration
+[context.development]
+  environment = { VITE_API_BASE_URL = "http://localhost:5000" }
+
+[context.production]
+  environment = { VITE_API_BASE_URL = "https://api.littleangelsschool.com" }
+
+[context.deploy-preview]
+  environment = { VITE_API_BASE_URL = "https://api.littleangelsschool.com" }
+
+# Redirects for common API paths (if backend is on different domain)
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.littleangelsschool.com/api/:splat"
+  status = 200
+  force = false
+
+# Performance optimization
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
